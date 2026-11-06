@@ -2,22 +2,23 @@
   <img src="assets/hero.png" alt="A relaxed person in headphones leaning back with their feet up, a speech bubble with sound waves beside them. Text: AI replies out loud, for people who'd rather listen than read." width="420">
 </p>
 
-<h1 align="center">Voice for Claude Code</h1>
+<h1 align="center">Voice for Claude Code &amp; Codex</h1>
 
 <p align="center"><em>It reads. You listen. One key to stop.</em></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.0-blue" alt="version 0.2.0">
+  <img src="https://img.shields.io/badge/version-0.3.0-blue" alt="version 0.3.0">
   <img src="https://img.shields.io/badge/platform-Windows-0078D6" alt="platform: Windows">
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code-555" alt="works with Claude Code">
+  <img src="https://img.shields.io/badge/works%20with-Codex-555" alt="works with Codex">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license: MIT">
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen" alt="contributions welcome"></a>
 </p>
 
 Hear Claude Code's replies read aloud, with hotkeys to stop, pause, reread, or read
-any highlighted text. Install it with two commands inside Claude Code.
+any highlighted text. Supports Claude Code and OpenAI Codex on Windows.
 
-> Not affiliated with or endorsed by Anthropic. "Claude" and "Claude Code" are Anthropic's names.
+> Not affiliated with or endorsed by Anthropic or OpenAI. Product names belong to their respective owners.
 
 ## Why this exists
 
@@ -87,8 +88,8 @@ voice mode. Both work fine while this reads.
 Inside Claude Code, type these two commands:
 
 ```
-/plugin marketplace add ftdcad/claude-code-voice
-/plugin install voice@claude-code-voice
+/plugin marketplace add ftdcad/coding-agent-voice
+/plugin install voice@coding-agent-voice
 ```
 
 The second one opens the plugin's details; pick **Install for you (user scope)**. If it
@@ -96,10 +97,10 @@ says to run `/reload-plugins`, do that (or just start a new session). The next r
 read aloud.
 
 On Claude Code 2.1.275 or later this one line does both steps:
-`/plugin install voice --marketplace ftdcad/claude-code-voice`.
+`/plugin install voice --marketplace ftdcad/coding-agent-voice`.
 
-From a terminal instead: `claude plugin marketplace add ftdcad/claude-code-voice` then
-`claude plugin install voice@claude-code-voice`.
+From a terminal instead: `claude plugin marketplace add ftdcad/coding-agent-voice` then
+`claude plugin install voice@coding-agent-voice`.
 
 ### Upgrading from the manual install
 
@@ -115,22 +116,50 @@ If you installed an earlier version by hand, remove it first, or every reply is 
 Then install the plugin as above and start a new session. If the old helper is still
 running, `/voice-off` then `/voice-on` switches to the new one.
 
+### Upgrading from 0.2.0 (old name `claude-code-voice`)
+
+This project used to be called `claude-code-voice`. If you installed it under that name,
+run `/plugin marketplace remove claude-code-voice`, then install it again with the two
+commands above.
+
 ### Update
 
 Updates aren't automatic for this marketplace. In Claude Code, run `/plugin`, open the
-**Marketplaces** tab, select `claude-code-voice` and choose **Update marketplace**; or
-from a terminal run `claude plugin update voice@claude-code-voice`. Then `/reload-plugins`
+**Marketplaces** tab, select `coding-agent-voice` and choose **Update marketplace**; or
+from a terminal run `claude plugin update voice@coding-agent-voice`. Then `/reload-plugins`
 or start a new session.
 
 ### Uninstall / turn it off
 
 To pause it for a while, just type `/voice-off`. To remove it completely:
 
-1. Type `/plugin uninstall voice@claude-code-voice` (or `/plugin marketplace remove claude-code-voice`,
+1. Type `/plugin uninstall voice@coding-agent-voice` (or `/plugin marketplace remove coding-agent-voice`,
    which removes the marketplace and the plugin together).
 2. The helper exits on its own about a minute after your last session closes. Optionally
    delete `C:\Users\<you>\.claude\voice-off` (if you ever used `/voice-off`) and the
    `%TEMP%\claude-voice` folder.
+
+## Codex (OpenAI)
+
+The same reader works with OpenAI's Codex on Windows (tested with Codex CLI 0.167.0).
+In PowerShell, run:
+
+```powershell
+codex plugin marketplace add ftdcad/coding-agent-voice
+codex plugin add voice@coding-agent-voice
+```
+
+Then restart Codex, type `/hooks` (or in the desktop app, Settings > Hooks) and trust the
+three voice hooks. Codex won't run them until you do, and may ask again after an update.
+
+Everything works the same: replies are read aloud, sending a message stops reading,
+and the same hotkeys work. To switch reading off or on, ask Codex to use the
+`voice-off` or `voice-on` skill (just type `voice off`, no slash). The first time,
+Codex asks permission to run the script outside its sandbox; pick "Yes, and don't
+ask again". Claude Code and Codex share one reader, so turning it off in one turns
+it off in both.
+
+To remove it: `codex plugin remove voice@coding-agent-voice`.
 
 ## Known shortcomings
 
@@ -164,6 +193,16 @@ The hooks are declared in `hooks/hooks.json`, the slash commands in `skills/`, a
 scripts live in `scripts/`; Claude Code runs them from the plugin's install folder.
 
 Logs: `%TEMP%\claude-voice\voice.log`.
+
+Codex loads `.codex-plugin/plugin.json` and `hooks/codex.json`; Claude Code keeps
+its existing manifest and hooks. Both use `scripts/`; Claude Code's slash commands are in
+`skills/` and Codex's copies in `codex-skills/`.
+
+To run isolated integration checks without speaking or changing your settings:
+
+```powershell
+powershell.exe -NoProfile -File tests\voice-integration.ps1
+```
 
 ## Experimental: hands-free microphone
 

@@ -1,4 +1,4 @@
-# Claude Voice helper: runs in the background, owns all read-aloud playback,
+# Shared Claude Code / Codex voice helper: owns all read-aloud playback,
 # and listens for global hotkeys.
 #   Ctrl+Alt+S  stop
 #   Ctrl+Alt+P  pause / resume
@@ -6,7 +6,7 @@
 #   Ctrl+Alt+H  read whatever text is highlighted (in any app)
 # The Stop hook (speak-response.ps1) drops replies into the inbox folder;
 # stop-speaking.ps1 drops a stop request. Only one copy runs at a time.
-# It shuts itself down about a minute after the last Claude Code session closes,
+# It shuts itself down about a minute after the last supported client exits,
 # and never runs while voice is turned off (/voice-off).
 
 $dir   = Join-Path $env:TEMP 'claude-voice'
@@ -267,11 +267,14 @@ Log ("Helper started; Ava voice: {0}" -f $(if ($script:useAva) { "$($script:pyth
 
 # Claude Code's command-line program is claude.exe outside WindowsApps (the Claude
 # desktop app lives in WindowsApps), or node.exe running the npm package.
-function Test-ClaudeCodeRunning {
-    $procs = Get-CimInstance Win32_Process -Filter "Name='claude.exe' OR Name='node.exe'" -ErrorAction SilentlyContinue
+# Codex can be a native executable or the @openai/codex npm launcher.
+function Test-VoiceClientRunning {
+    $procs = Get-CimInstance Win32_Process -Filter "Name='claude.exe' OR Name='codex.exe' OR Name='node.exe'" -ErrorAction SilentlyContinue
     foreach ($p in $procs) {
         if ($p.Name -eq 'claude.exe' -and $p.ExecutablePath -notlike '*\WindowsApps\*') { return $true }
         if ($p.Name -eq 'node.exe' -and $p.CommandLine -like '*claude-code*') { return $true }
+        if ($p.Name -eq 'codex.exe') { return $true }
+        if ($p.Name -eq 'node.exe' -and $p.CommandLine -match '[/\\]@openai[/\\]codex[/\\]') { return $true }
     }
     return $false
 }
@@ -312,9 +315,9 @@ $timer.add_Tick({
         Advance
         if ((Get-Date) -ge $script:nextCheck) {
             $script:nextCheck = (Get-Date).AddSeconds(20)
-            if (Test-ClaudeCodeRunning) { $script:lastSeenCC = Get-Date }
+            if (Test-VoiceClientRunning) { $script:lastSeenCC = Get-Date }
             elseif ($script:state -eq 'idle' -and ((Get-Date) - $script:lastSeenCC).TotalSeconds -ge 60) {
-                Log 'No Claude Code session for a minute; shutting down'
+                Log 'No Claude Code or Codex session for a minute; shutting down'
                 [System.Windows.Forms.Application]::Exit()
             }
         }

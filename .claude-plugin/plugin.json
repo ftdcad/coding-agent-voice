@@ -1,11 +1,11 @@
 {
   "name": "voice",
-  "displayName": "Voice for Claude Code",
-  "version": "0.2.0",
+  "displayName": "Voice for Claude Code & Codex",
+  "version": "0.3.0",
   "description": "Reads Claude Code's replies aloud on Windows, with hotkeys to stop, pause, reread, or read highlighted text",
   "author": { "name": "Frank Dalton", "url": "https://github.com/ftdcad" },
-  "homepage": "https://github.com/ftdcad/claude-code-voice",
-  "repository": "https://github.com/ftdcad/claude-code-voice",
+  "homepage": "https://github.com/ftdcad/coding-agent-voice",
+  "repository": "https://github.com/ftdcad/coding-agent-voice",
   "license": "MIT",
   "keywords": ["voice", "tts", "read-aloud", "accessibility", "windows"]
 }

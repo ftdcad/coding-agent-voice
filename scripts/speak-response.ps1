@@ -1,8 +1,13 @@
 # Stop hook: hands Claude's last reply to the background voice helper
 # (claude-voice.ps1), starting the helper if it isn't running.
 # Hook JSON arrives on stdin. Does nothing while voice is off (/voice-off).
+param([switch]$JsonOutput)
+
+# Codex Stop hooks expect JSON on stdout. Claude keeps its existing silent behavior.
+if ($JsonOutput) { Write-Output '{}' }
 if (Test-Path (Join-Path $env:USERPROFILE '.claude\voice-off')) { exit 0 }
 try {
+    [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
     $raw = [Console]::In.ReadToEnd()
     $data = $raw | ConvertFrom-Json
 
@@ -11,7 +16,7 @@ try {
         $text = [string]$data.last_assistant_message
     }
     elseif ($data.transcript_path -and (Test-Path $data.transcript_path)) {
-        $lines = Get-Content -LiteralPath $data.transcript_path -Encoding UTF8
+        $lines = @(Get-Content -LiteralPath $data.transcript_path -Encoding UTF8)
         for ($i = $lines.Count - 1; $i -ge 0 -and -not $text; $i--) {
             try { $entry = $lines[$i] | ConvertFrom-Json } catch { continue }
             if ($entry.type -ne 'assistant' -or -not $entry.message) { continue }

@@ -1,6 +1,6 @@
 {
-  "name": "claude-code-voice",
-  "description": "Voice add-on for Claude Code (Windows): read-aloud with hotkeys",
+  "name": "coding-agent-voice",
+  "description": "Read-aloud for coding agents on Windows (Claude Code and Codex), with hotkeys",
   "owner": { "name": "Frank Dalton", "url": "https://github.com/ftdcad" },
   "plugins": [
     {

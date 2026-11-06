@@ -1,0 +1,18 @@
+{
+  "name": "voice",
+  "version": "0.3.0",
+  "description": "Read Codex replies aloud on Windows, with hotkeys to stop, pause, reread, or read highlighted text",
+  "author": {
+    "name": "Frank Dalton",
+    "url": "https://github.com/ftdcad"
+  },
+  "license": "MIT",
+  "skills": "./codex-skills/",
+  "hooks": "./hooks/codex.json",
+  "interface": {
+    "displayName": "Voice for Claude Code & Codex",
+    "shortDescription": "Windows read-aloud with global hotkeys"
+  },
+  "homepage": "https://github.com/ftdcad/coding-agent-voice",
+  "repository": "https://github.com/ftdcad/coding-agent-voice"
+}
