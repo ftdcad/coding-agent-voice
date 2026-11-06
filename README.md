@@ -1,12 +1,36 @@
-# Voice add-on for Claude Code (Windows)
+<p align="center">
+  <img src="assets/hero.png" alt="A relaxed person in headphones leaning back with their feet up, a speech bubble with sound waves beside them. Text: AI replies out loud, for people who'd rather listen than read." width="420">
+</p>
+
+<h1 align="center">Voice for Claude Code</h1>
+
+<p align="center"><em>It reads. You listen. One key to stop.</em></p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-0.2.0-blue" alt="version 0.2.0">
+  <img src="https://img.shields.io/badge/platform-Windows-0078D6" alt="platform: Windows">
+  <img src="https://img.shields.io/badge/works%20with-Claude%20Code-555" alt="works with Claude Code">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="license: MIT">
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen" alt="contributions welcome"></a>
+</p>
 
 Hear Claude Code's replies read aloud, with hotkeys to stop, pause, reread, or read
-any highlighted text.
-
-Built by a dyslexic developer who works by voice. It's a small, honest early release:
-it works every day for me, it's rough around the edges, and I'd love help making it better.
+any highlighted text. Install it with two commands inside Claude Code.
 
 > Not affiliated with or endorsed by Anthropic. "Claude" and "Claude Code" are Anthropic's names.
+
+## Why this exists
+
+I'm dyslexic. Reading long blocks of text on screen is slow and tiring for me, but I
+understand things fast when I hear them. So I built this to have Claude Code's replies
+read to me while I work, and it has made me a noticeably better and faster coder.
+
+If reading is hard for you, whether from dyslexia, low vision, eye strain, or just long
+days at the screen, this might help you too. (If you're blind: this reads Claude's
+replies, but it doesn't replace a full screen reader.)
+
+It's a small, honest early release: it works every day for me, it's rough around the
+edges, and I'd love help making it better.
 
 ## What it does
 
@@ -148,6 +172,10 @@ say into Claude Code, and lets you talk over the reader to interrupt it. **It do
 work well enough yet**: echo leaks, room noise, and false messages. Its notes explain
 what we tried and what's left. If voice activity detection or echo cancellation is your
 thing, that's the best place to help.
+
+## Contributing
+
+Help is very welcome, especially with the hands-free mic. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Thanks
 
