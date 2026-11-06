@@ -29,12 +29,7 @@ try {
     [IO.File]::WriteAllText($tmp, $text, [Text.UTF8Encoding]::new($false))
     Move-Item -LiteralPath $tmp -Destination (Join-Path $inbox "$name.say")
 
-    $m = $null
-    if (-not [System.Threading.Mutex]::TryOpenExisting('Local\ClaudeVoiceHelper', [ref]$m)) {
-        Start-Process powershell.exe -WindowStyle Hidden -ArgumentList @(
-            '-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden',
-            '-File', "`"$env:USERPROFILE\.claude\hooks\claude-voice.ps1`"")
-    } else { $m.Dispose() }
+    & (Join-Path $PSScriptRoot 'start-helper.ps1')
 }
 catch { }
 exit 0

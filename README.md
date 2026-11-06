@@ -31,8 +31,12 @@ Slash commands inside Claude Code:
 | `/voice-off` | Stop reading and shut the helper down; stays off until `/voice-on` |
 | `/voice-on` | Turn read-aloud back on |
 
-The helper is a small hidden PowerShell process. It shuts itself down about a minute
-after your last Claude Code session closes, and starts again with the next reply.
+(Their full names are `/voice:voice-off` and `/voice:voice-on`; the short forms work
+unless another command already uses the name.)
+
+The helper is a small hidden PowerShell process. It starts when you open a Claude Code
+session, so the hotkeys work right away, and shuts itself down about a minute after your
+last Claude Code session closes.
 
 For talking *to* Claude, I use Windows voice typing (Win+H) or Claude Code's built-in
 voice mode. Both work fine while this reads.
@@ -48,35 +52,60 @@ voice mode. Both work fine while this reads.
 
 ## Requirements
 
-- Windows 10 or 11, Claude Code
-- Optional, for the Ava voice: Python 3.13 at `%LOCALAPPDATA%\Programs\Python\Python313`
-  and `pip install edge-tts`. Without it, the David voice is used.
+- Windows 10 or 11, and a recent Claude Code (plugins; tested on 2.1.319)
+- Optional, for the Ava voice: Python 3 with `pip install edge-tts`. The helper looks
+  for Python in this order and uses the first one where `import edge_tts` works:
+  the python.org install at `%LOCALAPPDATA%\Programs\Python\Python313`, the `py -3`
+  launcher, then `python` on PATH. Without it, the David voice is used.
 
-## Install (manual, for now)
+## Install
 
-1. Copy the four files in `src/hooks/` to `C:\Users\<you>\.claude\hooks\`, and the two
-   files in `src/commands/` to `C:\Users\<you>\.claude\commands\`.
-2. Add the hooks to `C:\Users\<you>\.claude\settings.json`, using your real path:
-   ```json
-   "hooks": {
-     "UserPromptSubmit": [{ "hooks": [{ "type": "command", "timeout": 10,
-       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<you>\\.claude\\hooks\\stop-speaking.ps1\"" }] }],
-     "Stop": [{ "hooks": [{ "type": "command", "async": true, "timeout": 300,
-       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<you>\\.claude\\hooks\\speak-response.ps1\"" }] }]
-   }
-   ```
-3. Optional: so the hotkeys work right after login, put a shortcut in your Startup
-   folder (`Win+R`, `shell:startup`) that runs:
-   `powershell -NoProfile -STA -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\<you>\.claude\hooks\claude-voice.ps1"`.
-   Otherwise the helper starts with the first reply.
+Inside Claude Code, type these two commands:
 
-## Uninstall / turn it off
+```
+/plugin marketplace add ftdcad/claude-code-voice
+/plugin install voice@claude-code-voice
+```
+
+The second one opens the plugin's details; pick **Install for you (user scope)**. If it
+says to run `/reload-plugins`, do that (or just start a new session). The next reply is
+read aloud.
+
+On Claude Code 2.1.275 or later this one line does both steps:
+`/plugin install voice --marketplace ftdcad/claude-code-voice`.
+
+From a terminal instead: `claude plugin marketplace add ftdcad/claude-code-voice` then
+`claude plugin install voice@claude-code-voice`.
+
+### Upgrading from the manual install
+
+If you installed an earlier version by hand, remove it first, or every reply is read twice:
+
+1. In `C:\Users\<you>\.claude\settings.json`, delete the `UserPromptSubmit` and `Stop`
+   hook entries that run `stop-speaking.ps1` and `speak-response.ps1`.
+2. Delete `claude-voice.ps1`, `speak-response.ps1`, `stop-speaking.ps1` and
+   `voice-toggle.ps1` from `C:\Users\<you>\.claude\hooks\`, and `voice-off.md` and
+   `voice-on.md` from `C:\Users\<you>\.claude\commands\`.
+3. If you made a Startup shortcut for `claude-voice.ps1`, delete it.
+
+Then install the plugin as above and start a new session. If the old helper is still
+running, `/voice-off` then `/voice-on` switches to the new one.
+
+### Update
+
+Updates aren't automatic for this marketplace. In Claude Code, run `/plugin`, open the
+**Marketplaces** tab, select `claude-code-voice` and choose **Update marketplace**; or
+from a terminal run `claude plugin update voice@claude-code-voice`. Then `/reload-plugins`
+or start a new session.
+
+### Uninstall / turn it off
 
 To pause it for a while, just type `/voice-off`. To remove it completely:
 
-1. Type `/voice-off`, then remove the two hook entries from `settings.json`.
-2. Delete the four files from `.claude\hooks\`, the two from `.claude\commands\`, the
-   `.claude\voice-off` file, the Startup shortcut if you made one, and the
+1. Type `/plugin uninstall voice@claude-code-voice` (or `/plugin marketplace remove claude-code-voice`,
+   which removes the marketplace and the plugin together).
+2. The helper exits on its own about a minute after your last session closes. Optionally
+   delete `C:\Users\<you>\.claude\voice-off` (if you ever used `/voice-off`) and the
    `%TEMP%\claude-voice` folder.
 
 ## Known shortcomings
@@ -91,18 +120,24 @@ To pause it for a while, just type `/voice-off`. To remove it completely:
   It also replaces non-text clipboard contents (like an image).
 - **One reader for all sessions.** Every Claude Code session on the PC feeds the same
   reader, so a reply from another window replaces the one you're hearing.
-- Windows only, and install is manual.
+- **Python from the Microsoft Store isn't detected** (its `python` lives behind the
+  Store's launcher stub, which the helper skips). Use the python.org installer.
+- Windows only.
 
 ## How it works
 
 ```
-Claude Code ──Stop hook──────▶ speak-response.ps1 ──.say──▶ %TEMP%\claude-voice\inbox
-            ──Prompt hook────▶ stop-speaking.ps1  ──.stop─▶            │
-                                                                      ▼
-                  claude-voice.ps1 (background: hotkeys, edge-tts, playback)
+Claude Code ──SessionStart hook─▶ start-helper.ps1 ─────────────────────┐
+            ──Stop hook─────────▶ speak-response.ps1 ──.say──▶ %TEMP%\claude-voice\inbox
+            ──Prompt hook───────▶ stop-speaking.ps1  ──.stop─▶            │
+                                                                         ▼
+                     claude-voice.ps1 (background: hotkeys, edge-tts, playback)
 
 /voice-off, /voice-on ──▶ voice-toggle.ps1 (creates/removes .claude\voice-off, stops/starts the helper)
 ```
+
+The hooks are declared in `hooks/hooks.json`, the slash commands in `skills/`, and the
+scripts live in `scripts/`; Claude Code runs them from the plugin's install folder.
 
 Logs: `%TEMP%\claude-voice\voice.log`.
 

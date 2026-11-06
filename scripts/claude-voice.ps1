@@ -67,9 +67,31 @@ public class VoiceHotkeys : NativeWindow {
 }
 "@
 
+# ---------- Python (for the Ava voice) ----------
+# First interpreter where `import edge_tts` works: the python.org 3.13 install,
+# then the `py -3` launcher, then `python` on PATH. None found = David voice.
+function Find-Python {
+    $candidates = @(
+        @{ File = (Join-Path $env:LOCALAPPDATA 'Programs\Python\Python313\python.exe'); Args = @() },
+        @{ File = 'py';     Args = @('-3') },
+        @{ File = 'python'; Args = @() }
+    )
+    foreach ($c in $candidates) {
+        $cmd = Get-Command $c.File -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if (-not $cmd) { continue }
+        # Skip the Microsoft Store "python" stub, which opens the Store instead of running.
+        if ($cmd.Source -like '*\Microsoft\WindowsApps\*') { continue }
+        try {
+            $p = Start-Process -FilePath $cmd.Source -WindowStyle Hidden -PassThru -Wait -ArgumentList ($c.Args + @('-c', '"import edge_tts"'))
+            if ($p.ExitCode -eq 0) { return @{ File = $cmd.Source; Args = $c.Args } }
+        } catch {}
+    }
+    return $null
+}
+
 # ---------- state ----------
-$script:py       = Join-Path $env:LOCALAPPDATA 'Programs\Python\Python313\python.exe'
-$script:useAva   = Test-Path $script:py
+$script:python   = Find-Python
+$script:useAva   = $null -ne $script:python
 $script:chunks   = @()
 $script:idx      = 0
 $script:state    = 'idle'      # idle | waiting | ava | david
@@ -116,8 +138,8 @@ function Start-Piece([int]$i) {
     if (-not $script:useAva -or $i -ge $script:chunks.Count -or $script:procs.ContainsKey($i)) { return }
     $txt = Piece-Path $i 'txt'; $mp3 = Piece-Path $i 'mp3'
     [IO.File]::WriteAllText($txt, $script:chunks[$i], [Text.UTF8Encoding]::new($false))
-    $script:procs[$i] = Start-Process -FilePath $script:py -WindowStyle Hidden -PassThru -ArgumentList @(
-        '-m', 'edge_tts', '--voice', 'en-US-AvaNeural', '--file', "`"$txt`"", '--write-media', "`"$mp3`"")
+    $script:procs[$i] = Start-Process -FilePath $script:python.File -WindowStyle Hidden -PassThru -ArgumentList ($script:python.Args + @(
+        '-m', 'edge_tts', '--voice', 'en-US-AvaNeural', '--file', "`"$txt`"", '--write-media', "`"$mp3`""))
 }
 
 function Stop-Reading {
@@ -241,7 +263,7 @@ foreach ($id in $keys.Keys) {
 
 # Throw away stale requests left from before a restart.
 Get-ChildItem $inbox -File -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTime -lt (Get-Date).AddMinutes(-2) } | Remove-Item -Force -ErrorAction SilentlyContinue
-Log 'Helper started'
+Log ("Helper started; Ava voice: {0}" -f $(if ($script:useAva) { "$($script:python.File) $($script:python.Args -join ' ')".Trim() } else { 'no (edge_tts not found, using David)' }))
 
 # Claude Code's command-line program is claude.exe outside WindowsApps (the Claude
 # desktop app lives in WindowsApps), or node.exe running the npm package.

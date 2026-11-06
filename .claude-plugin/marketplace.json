@@ -1,0 +1,14 @@
+{
+  "name": "claude-code-voice",
+  "description": "Voice add-on for Claude Code (Windows): read-aloud with hotkeys",
+  "owner": { "name": "Frank Dalton", "url": "https://github.com/ftdcad" },
+  "plugins": [
+    {
+      "name": "voice",
+      "source": "./",
+      "description": "Reads Claude Code's replies aloud on Windows, with hotkeys to stop, pause, reread, or read highlighted text",
+      "category": "accessibility",
+      "tags": ["voice", "tts", "read-aloud", "windows"]
+    }
+  ]
+}

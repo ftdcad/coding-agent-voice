@@ -4,7 +4,6 @@
 param([ValidateSet('on', 'off')][string]$Mode = 'off')
 
 $flag = Join-Path $env:USERPROFILE '.claude\voice-off'
-$helper = Join-Path $env:USERPROFILE '.claude\hooks\claude-voice.ps1'
 
 if ($Mode -eq 'off') {
     New-Item -ItemType File -Force $flag | Out-Null
@@ -14,10 +13,6 @@ if ($Mode -eq 'off') {
     'Voice is off.'
 } else {
     Remove-Item $flag -Force -ErrorAction SilentlyContinue
-    $m = $null
-    if (-not [System.Threading.Mutex]::TryOpenExisting('Local\ClaudeVoiceHelper', [ref]$m)) {
-        Start-Process powershell.exe -WindowStyle Hidden -ArgumentList @(
-            '-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$helper`"")
-    } else { $m.Dispose() }
+    & (Join-Path $PSScriptRoot 'start-helper.ps1')
     'Voice is on.'
 }
