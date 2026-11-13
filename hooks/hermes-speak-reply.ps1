@@ -5,6 +5,9 @@
 try {
     [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
     $data = [Console]::In.ReadToEnd() | ConvertFrom-Json
+    # Terminal only: the desktop app has its own voice, and both at once means hearing it twice.
+    $platform = [string]$data.extra.platform
+    if ($platform -and $platform -ne 'cli') { exit 0 }
     $text = $null
     foreach ($candidate in @($data.extra.assistant_response, $data.assistant_response)) {
         if ($candidate -is [string] -and $candidate.Trim()) { $text = $candidate; break }

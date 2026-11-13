@@ -176,7 +176,8 @@ hooks:
 
 Restart `hermes`. The first time, it asks whether to allow the hook; say yes. Use forward
 slashes in the path. `/voice-off` in Claude Code silences Hermes too (one shared reader).
-The Hermes desktop app has its own voice, so this is for the terminal only.
+The Hermes desktop app has its own voice, so the hook skips replies that don't come from
+the terminal (`platform` other than `cli`) and you never hear a reply twice.
 
 ## Known shortcomings
 
