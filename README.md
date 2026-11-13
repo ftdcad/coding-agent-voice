@@ -161,6 +161,23 @@ it off in both.
 
 To remove it: `codex plugin remove voice@coding-agent-voice`.
 
+## Hermes Agent (Nous Research)
+
+Hermes replies can be read aloud by the same reader (tested with Hermes Agent v0.23.1,
+terminal `hermes chat`). Clone this repo, then add a `post_llm_call` hook to Hermes's
+`config.yaml` (in your Hermes home folder), with your own path to the clone:
+
+```yaml
+hooks:
+  post_llm_call:
+    - command: "powershell -NoProfile -ExecutionPolicy Bypass -File C:/path/to/coding-agent-voice/hooks/hermes-speak-reply.ps1"
+      timeout: 30
+```
+
+Restart `hermes`. The first time, it asks whether to allow the hook; say yes. Use forward
+slashes in the path. `/voice-off` in Claude Code silences Hermes too (one shared reader).
+The Hermes desktop app has its own voice, so this is for the terminal only.
+
 ## Known shortcomings
 
 - **Ctrl+Alt+letter is AltGr** on many non-US keyboards, so these hotkeys can block
