@@ -19,6 +19,11 @@ $created = $false
 $script:mutex = New-Object System.Threading.Mutex($true, 'Local\ClaudeVoiceHelper', [ref]$created)
 if (-not $created) { exit 0 }
 
+# Stay ahead of programs that keep every processor core busy (a local AI model, a big
+# build), or the audio breaks up while they work. The helper is idle most of the time,
+# so this costs nothing.
+try { [Diagnostics.Process]::GetCurrentProcess().PriorityClass = 'High' } catch {}
+
 $script:log = Join-Path $dir 'voice.log'
 function Log([string]$m) { try { Add-Content -LiteralPath $script:log ("{0:yyyy-MM-dd HH:mm:ss} {1}" -f (Get-Date), $m) } catch {} }
 

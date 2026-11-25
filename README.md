@@ -7,7 +7,7 @@
 <p align="center"><em>It reads. You listen. One key to stop.</em></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.3.0-blue" alt="version 0.3.0">
+  <img src="https://img.shields.io/badge/version-0.3.1-blue" alt="version 0.3.1">
   <img src="https://img.shields.io/badge/platform-Windows-0078D6" alt="platform: Windows">
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code-555" alt="works with Claude Code">
   <img src="https://img.shields.io/badge/works%20with-Codex-555" alt="works with Codex">

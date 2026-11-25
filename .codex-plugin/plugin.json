@@ -1,6 +1,6 @@
 {
   "name": "voice",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Read Codex replies aloud on Windows, with hotkeys to stop, pause, reread, or read highlighted text",
   "author": {
     "name": "Frank Dalton",

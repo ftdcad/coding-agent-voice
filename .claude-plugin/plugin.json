@@ -1,7 +1,7 @@
 {
   "name": "voice",
   "displayName": "Voice for Claude Code & Codex",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Reads Claude Code's replies aloud on Windows, with hotkeys to stop, pause, reread, or read highlighted text",
   "author": { "name": "Frank Dalton", "url": "https://github.com/ftdcad" },
   "homepage": "https://github.com/ftdcad/coding-agent-voice",
